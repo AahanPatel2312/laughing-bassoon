@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Your Name | Portfolio</title>
+<style>
+  :root { --bg:#fafafa; --fg:#14161c; --muted:#5b6170; --card:#fff; --line:#e4e6ec; --accent:#2f5bea;
+    box-sizing:border-box; padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px); }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --bg:#0e1015; --fg:#eef0f5; --muted:#9aa1b2; --card:#171a22; --line:#262a35; --accent:#6d8cff; } }
+  :root[data-theme="dark"] { --bg:#0e1015; --fg:#eef0f5; --muted:#9aa1b2; --card:#171a22; --line:#262a35; --accent:#6d8cff; }
+  html { scroll-behavior:smooth; scroll-padding-top:calc(70px + env(safe-area-inset-top,0px)); }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:"Inter",system-ui,-apple-system,"Segoe UI",sans-serif; background:var(--bg); color:var(--fg); line-height:1.65; }
+  a { color:inherit; text-decoration:none; }
+  .wrap { max-width:1000px; margin:auto; padding:0 24px; }
+  header { position:sticky; top:env(safe-area-inset-top,0px); background:var(--bg); border-bottom:1px solid var(--line); z-index:10; }
+  nav { display:flex; justify-content:space-between; align-items:center; height:64px; }
+  .logo { font-weight:700; letter-spacing:-.02em; }
+  nav ul { display:flex; gap:28px; list-style:none; font-size:.95rem; color:var(--muted); }
+  nav ul a:hover { color:var(--accent); }
+  .hero { padding:110px 0 90px; }
+  .tag { color:var(--accent); font-weight:600; font-size:.9rem; letter-spacing:.08em; text-transform:uppercase; }
+  h1 { font-size:clamp(2.4rem,6vw,4rem); line-height:1.1; letter-spacing:-.03em; margin:14px 0 20px; }
+  .hero p { color:var(--muted); font-size:1.15rem; max-width:560px; }
+  .btns { margin-top:32px; display:flex; gap:12px; flex-wrap:wrap; }
+  .btn { padding:12px 24px; border-radius:8px; font-weight:600; border:1px solid var(--line); }
+  .btn.primary { background:var(--accent); color:#fff; border-color:var(--accent); }
+  section { padding:80px 0; border-top:1px solid var(--line); }
+  h2 { font-size:1.8rem; letter-spacing:-.02em; margin-bottom:24px; }
+  .about p { color:var(--muted); max-width:640px; }
+  .chips { display:flex; flex-wrap:wrap; gap:10px; margin-top:24px; }
+  .chips span { padding:6px 14px; border:1px solid var(--line); border-radius:999px; background:var(--card); font-size:.9rem; }
+  .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:20px; }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:24px; }
+  .card h3 { margin-bottom:8px; } .card p { color:var(--muted); font-size:.95rem; }
+  .contact a.mail { color:var(--accent); font-size:1.3rem; font-weight:600; }
+  footer { padding:32px 0; border-top:1px solid var(--line); color:var(--muted); font-size:.9rem; text-align:center; }
+  @media (max-width:600px) { nav ul { gap:16px; font-size:.85rem; } .hero { padding:70px 0 60px; } }
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap"><nav>
+    <a href="#home" class="logo">Your Name</a>
+    <ul><li><a href="#about">About</a></li><li><a href="#projects">Projects</a></li><li><a href="#contact">Contact</a></li></ul>
+  </nav></div>
+</header>
+
+<main class="wrap">
+  <div class="hero" id="home">
+    <p class="tag">Web Developer</p>
+    <h1>I design and build clean, modern web experiences.</h1>
+    <p>Hi, I'm Your Name. I turn ideas into fast, accessible and well-crafted websites and apps.</p>
+    <div class="btns">
+      <a class="btn primary" href="#projects">View my work</a>
+      <a class="btn" href="#contact">Get in touch</a>
+    </div>
+  </div>
+
+  <section class="about" id="about">
+    <h2>About me</h2>
+    <p>I'm a developer who cares about simple design and solid code. Add a short paragraph here about your background, what you study or do, and what you're looking for.</p>
+    <div class="chips"><span>HTML</span><span>CSS</span><span>JavaScript</span><span>Python</span><span>Git</span></div>
+  </section>
+
+  <section id="projects">
+    <h2>Selected projects</h2>
+    <div class="grid">
+      <div class="card"><h3>Project One</h3><p>A short description of what you built, the problem it solves and the tools you used.</p></div>
+      <div class="card"><h3>Project Two</h3><p>A short description of what you built, the problem it solves and the tools you used.</p></div>
+      <div class="card"><h3>Project Three</h3><p>A short description of what you built, the problem it solves and the tools you used.</p></div>
+    </div>
+  </section>
+
+  <section class="contact" id="contact">
+    <h2>Let's work together</h2>
+    <p style="color:var(--muted);margin-bottom:12px">Have a project or an opportunity in mind? I'd love to hear from you.</p>
+    <a class="mail" href="mailto:you@example.com">you@example.com</a>
+  </section>
+</main>
+
+<footer>© 2026 Your Name. All rights reserved.</footer>
+</body>
+</html>
