@@ -1,871 +1,521 @@
-import { useState, useEffect, useRef } from "react";
-import { motion } from "motion/react";
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Aahan Patel — Portfolio</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body { background: #08080f; font-family: 'Inter', 'Helvetica Neue', sans-serif; color: #fff; overflow-x: hidden; }
+  img { max-width: 100%; }
 
-function ImageWithFallback(props) {
-  const [didError, setDidError] = useState(false);
-  const { src, alt, style, className, ...rest } = props;
-  return didError ? (
-    <div className={`inline-block bg-gray-900 text-center align-middle ${className ?? ""}`} style={style}>
-      <div className="flex items-center justify-center w-full h-full">
-        <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iODgiIGhlaWdodD0iODgiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgc3Ryb2tlPSIjMDAwIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBvcGFjaXR5PSIuMyIgZmlsbD0ibm9uZSIgc3Ryb2tlLXdpZHRoPSIzLjciPjxyZWN0IHg9IjE2IiB5PSIxNiIgd2lkdGg9IjU2IiBoZWlnaHQ9IjU2IiByeD0iNiIvPjxwYXRoIGQ9Im0xNiA1OCAxNi0xOCAzMiAzMiIvPjxjaXJjbGUgY3g9IjUzIiBjeT0iMzUiIHI9IjciLz48L3N2Zz4KCg==" alt="Error" data-original-url={src} />
+  /* NAV */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    padding: 0 2.5rem; height: 64px;
+    display: flex; align-items: center; justify-content: space-between;
+    transition: background 0.4s ease, border 0.4s ease;
+  }
+  nav.scrolled {
+    background: rgba(8,8,18,0.92);
+    backdrop-filter: blur(14px);
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+  }
+  .nav-logo { font-size: 1.25rem; letter-spacing: 0.06em; cursor: pointer; font-family: 'Courier New', monospace; }
+  .nav-logo span:first-child { color: #a78bfa; }
+  .nav-logo span:last-child { color: #fff; opacity: 0.5; }
+  .nav-links { display: flex; gap: 2rem; }
+  .nav-links a {
+    color: rgba(255,255,255,0.6); text-decoration: none;
+    font-size: 0.875rem; letter-spacing: 0.08em; text-transform: uppercase;
+    font-family: 'Courier New', monospace;
+    border-bottom: 1px solid transparent;
+    transition: color 0.2s, border-color 0.2s; padding-bottom: 2px;
+  }
+  .nav-links a:hover { color: #a78bfa; border-bottom-color: #a78bfa; }
+
+  /* HERO */
+  #hero {
+    min-height: 100vh; display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    position: relative; overflow: hidden;
+    background: linear-gradient(135deg, #0a0a16 0%, #0f0826 50%, #0a0a16 100%);
+  }
+  .hero-grid {
+    position: absolute; inset: 0;
+    background-image: linear-gradient(rgba(167,139,250,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(167,139,250,0.04) 1px, transparent 1px);
+    background-size: 50px 50px;
+    mask-image: radial-gradient(ellipse 80% 60% at 50% 50%, black 40%, transparent 100%);
+    -webkit-mask-image: radial-gradient(ellipse 80% 60% at 50% 50%, black 40%, transparent 100%);
+  }
+  .orb1 {
+    position: absolute; top: 20%; left: 15%; width: 340px; height: 340px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(124,58,237,0.22) 0%, transparent 70%);
+    filter: blur(40px); animation: floatOrb 7s ease-in-out infinite;
+  }
+  .orb2 {
+    position: absolute; bottom: 25%; right: 12%; width: 260px; height: 260px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(59,130,246,0.18) 0%, transparent 70%);
+    filter: blur(50px); animation: floatOrb 9s ease-in-out infinite reverse;
+  }
+  .hero-content { position: relative; z-index: 2; text-align: center; padding: 0 1.5rem; }
+  .hero-badge {
+    display: inline-block; padding: 4px 14px;
+    background: rgba(167,139,250,0.1); border: 1px solid rgba(167,139,250,0.3);
+    border-radius: 99px; color: #a78bfa; font-size: 0.78rem;
+    letter-spacing: 0.14em; text-transform: uppercase; margin-bottom: 1.8rem;
+    font-family: 'Courier New', monospace;
+  }
+  .hero-name1 {
+    font-size: clamp(3rem, 8vw, 7rem); color: #fff;
+    line-height: 1.0; margin-bottom: 0.4rem; letter-spacing: -0.03em;
+  }
+  .hero-name2 {
+    font-size: clamp(3rem, 8vw, 7rem);
+    background: linear-gradient(90deg, #a78bfa, #60a5fa, #a78bfa);
+    background-size: 200% auto;
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-clip: text;
+    line-height: 1.0; margin-bottom: 2.2rem; letter-spacing: -0.03em;
+    animation: gradientShift 3s linear infinite;
+  }
+  .hero-typewriter {
+    font-size: clamp(1rem, 2.5vw, 1.4rem); color: rgba(255,255,255,0.55);
+    font-family: 'Courier New', monospace; min-height: 2em; margin-bottom: 2.8rem;
+  }
+  .hero-typewriter .prompt { color: #a78bfa; }
+  .cursor {
+    display: inline-block; width: 2px; height: 1.2em;
+    background: #a78bfa; vertical-align: middle; margin-left: 2px;
+    animation: blink 1s step-end infinite;
+  }
+  .hero-btns { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+  .btn-primary {
+    padding: 0.75rem 2rem;
+    background: linear-gradient(135deg, #7c3aed, #4f46e5);
+    color: #fff; border: none; border-radius: 8px; cursor: pointer;
+    font-size: 0.9rem; letter-spacing: 0.05em;
+    box-shadow: 0 0 24px rgba(124,58,237,0.4);
+    transition: transform 0.2s, box-shadow 0.2s; text-decoration: none;
+    display: inline-block;
+  }
+  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 0 36px rgba(124,58,237,0.65); }
+  .btn-secondary {
+    padding: 0.75rem 2rem; background: transparent;
+    color: rgba(255,255,255,0.7); border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 8px; cursor: pointer; font-size: 0.9rem;
+    letter-spacing: 0.05em; transition: border-color 0.2s, color 0.2s;
+    text-decoration: none; display: inline-block;
+  }
+  .btn-secondary:hover { border-color: #a78bfa; color: #a78bfa; }
+  .scroll-hint {
+    position: absolute; bottom: 2rem; left: 50%; transform: translateX(-50%);
+    display: flex; flex-direction: column; align-items: center; gap: 6px;
+    opacity: 0.3; animation: fadeDown 2s ease-in-out infinite;
+  }
+  .scroll-hint-line { width: 1px; height: 40px; background: linear-gradient(to bottom, transparent, #a78bfa); }
+  .scroll-hint-text { font-size: 0.65rem; letter-spacing: 0.18em; color: #fff; text-transform: uppercase; font-family: monospace; }
+
+  /* SECTION DIVIDER */
+  .section-divider { height: 1px; background: linear-gradient(90deg, transparent, rgba(167,139,250,0.4), transparent); }
+  .section-divider-blue { height: 1px; background: linear-gradient(90deg, transparent, rgba(96,165,250,0.3), transparent); }
+
+  /* ABOUT */
+  #about { background: #08080f; padding: 7rem 2rem; position: relative; overflow: hidden; }
+  .about-grid { max-width: 1100px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 5rem; align-items: center; }
+  .about-img-wrap {
+    position: relative; border-radius: 16px; overflow: hidden;
+    border: 1px solid rgba(167,139,250,0.2); box-shadow: 0 0 60px rgba(124,58,237,0.15);
+  }
+  .about-img { width: 100%; height: 380px; object-fit: cover; display: block; }
+  .about-img-overlay {
+    position: absolute; inset: 0;
+    background: linear-gradient(to top, rgba(8,8,15,0.7) 0%, transparent 60%);
+  }
+  .available-badge {
+    position: absolute; bottom: 1.2rem; left: 1.2rem;
+    background: rgba(8,8,15,0.7); backdrop-filter: blur(10px);
+    border: 1px solid rgba(167,139,250,0.2); border-radius: 8px;
+    padding: 0.5rem 0.9rem; display: flex; align-items: center; gap: 8px;
+  }
+  .available-dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: #22c55e; box-shadow: 0 0 8px #22c55e;
+    animation: blink2 2s ease-in-out infinite;
+  }
+  .available-badge span { color: rgba(255,255,255,0.7); font-size: 0.8rem; font-family: monospace; }
+  .section-label { color: #a78bfa; font-size: 0.8rem; letter-spacing: 0.18em; text-transform: uppercase; margin-bottom: 1rem; font-family: monospace; }
+  .section-title { font-size: clamp(2rem, 4vw, 3rem); color: #fff; line-height: 1.15; margin-bottom: 1.5rem; letter-spacing: -0.02em; }
+  .about-text { color: rgba(255,255,255,0.5); line-height: 1.8; margin-bottom: 1rem; font-size: 0.95rem; }
+  .stats { display: flex; gap: 2rem; margin-top: 2rem; }
+  .stat-num { font-size: 1.8rem; color: #a78bfa; letter-spacing: -0.02em; }
+  .stat-label { font-size: 0.75rem; color: rgba(255,255,255,0.35); letter-spacing: 0.05em; }
+
+  /* SKILLS */
+  #skills { background: linear-gradient(180deg, #08080f 0%, #0d0b1a 100%); padding: 7rem 2rem; }
+  .skills-inner { max-width: 860px; margin: 0 auto; }
+  .skills-header { text-align: center; margin-bottom: 4rem; }
+  .skills-card {
+    background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 20px; padding: 2.5rem 3rem; backdrop-filter: blur(10px);
+  }
+  .skill-row { margin-bottom: 1.6rem; }
+  .skill-meta { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; }
+  .skill-left { display: flex; align-items: center; gap: 10px; }
+  .skill-icon { font-size: 1.1rem; }
+  .skill-name { color: #fff; font-size: 0.95rem; letter-spacing: 0.02em; }
+  .skill-note { color: rgba(255,255,255,0.3); font-size: 0.75rem; font-family: monospace; }
+  .skill-pct { font-family: monospace; font-size: 0.85rem; }
+  .skill-track { height: 6px; border-radius: 99px; background: rgba(255,255,255,0.07); overflow: hidden; }
+  .skill-bar {
+    height: 100%; border-radius: 99px; width: 0%;
+    transition: width 1.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  .tags { margin-top: 2rem; display: flex; flex-wrap: wrap; gap: 0.75rem; justify-content: center; }
+  .tag {
+    padding: 0.35rem 0.9rem; background: rgba(167,139,250,0.08);
+    border: 1px solid rgba(167,139,250,0.2); border-radius: 99px;
+    color: rgba(255,255,255,0.55); font-size: 0.78rem;
+    font-family: monospace; letter-spacing: 0.04em;
+  }
+
+  /* PROJECTS */
+  #projects { background: #08080f; padding: 7rem 2rem; position: relative; }
+  .projects-inner { max-width: 1100px; margin: 0 auto; }
+  .projects-header { margin-bottom: 3.5rem; }
+  .projects-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem; }
+  .project-card {
+    border-radius: 16px; overflow: hidden;
+    border: 1px solid rgba(255,255,255,0.07);
+    background: rgba(255,255,255,0.025);
+    transition: border-color 0.3s, transform 0.3s, box-shadow 0.3s; cursor: pointer;
+  }
+  .project-card:hover { transform: translateY(-6px); }
+  .project-img-wrap { position: relative; overflow: hidden; }
+  .project-img { width: 100%; height: 200px; object-fit: cover; display: block; filter: brightness(0.5); transition: transform 0.5s ease, filter 0.3s ease; }
+  .project-card:hover .project-img { transform: scale(1.05); filter: brightness(0.7); }
+  .project-num {
+    position: absolute; top: 1rem; left: 1rem;
+    font-family: monospace; font-size: 3rem; opacity: 0.15; line-height: 1; letter-spacing: -0.05em;
+  }
+  .project-body { padding: 1.5rem; }
+  .project-title { color: #fff; margin-bottom: 0.5rem; font-size: 1.05rem; letter-spacing: -0.01em; }
+  .project-desc { color: rgba(255,255,255,0.45); font-size: 0.85rem; line-height: 1.7; margin-bottom: 1rem; }
+  .project-tags { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+  .project-tag { padding: 3px 10px; border-radius: 99px; font-size: 0.72rem; font-family: monospace; letter-spacing: 0.06em; }
+
+  /* CONTACT */
+  #contact { background: linear-gradient(180deg, #08080f 0%, #0a0620 100%); padding: 7rem 2rem 5rem; position: relative; overflow: hidden; }
+  .contact-glow {
+    position: absolute; bottom: -100px; left: 50%; transform: translateX(-50%);
+    width: 600px; height: 300px;
+    background: radial-gradient(ellipse, rgba(124,58,237,0.15) 0%, transparent 70%);
+    filter: blur(40px);
+  }
+  .contact-inner { max-width: 700px; margin: 0 auto; text-align: center; position: relative; z-index: 1; }
+  .contact-title { font-size: clamp(2.2rem, 5vw, 3.5rem); color: #fff; letter-spacing: -0.03em; margin-bottom: 1.2rem; }
+  .contact-desc { color: rgba(255,255,255,0.45); line-height: 1.8; margin-bottom: 2.5rem; font-size: 0.95rem; }
+  .email-btn {
+    display: inline-flex; align-items: center; gap: 10px;
+    padding: 1rem 2rem;
+    background: rgba(167,139,250,0.1); border: 1px solid rgba(167,139,250,0.3);
+    border-radius: 12px; color: #a78bfa; font-size: 0.95rem;
+    font-family: monospace; cursor: pointer; transition: all 0.3s ease;
+    letter-spacing: 0.03em; margin-bottom: 2.5rem;
+    text-decoration: none;
+  }
+  .email-btn:hover { background: rgba(167,139,250,0.18); }
+  .social-links { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+  .social-link {
+    padding: 0.5rem 1.2rem; border-radius: 8px;
+    border: 1px solid rgba(255,255,255,0.1); color: rgba(255,255,255,0.45);
+    text-decoration: none; font-size: 0.82rem; font-family: monospace;
+    transition: color 0.2s, border-color 0.2s;
+  }
+  .social-link:hover { color: #fff; border-color: rgba(255,255,255,0.3); }
+  .footer-bar {
+    max-width: 1100px; margin: 4rem auto 0; padding-top: 2rem;
+    border-top: 1px solid rgba(255,255,255,0.05);
+    display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;
+  }
+  .footer-bar span { color: rgba(255,255,255,0.2); font-size: 0.78rem; font-family: monospace; }
+
+  /* ANIMATIONS */
+  @keyframes floatOrb { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-28px)} }
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+  @keyframes blink2 { 0%,100%{opacity:1} 50%{opacity:0.4} }
+  @keyframes gradientShift { 0%{background-position:0% center} 100%{background-position:200% center} }
+  @keyframes fadeDown { 0%,100%{opacity:0.3;transform:translateX(-50%) translateY(0)} 50%{opacity:0.6;transform:translateX(-50%) translateY(6px)} }
+  @keyframes fadeInUp { from{opacity:0;transform:translateY(40px)} to{opacity:1;transform:translateY(0)} }
+
+  .fade-in-up { animation: fadeInUp 0.8s ease forwards; opacity: 0; }
+  .delay-1 { animation-delay: 0.15s; }
+  .delay-2 { animation-delay: 0.3s; }
+  .delay-3 { animation-delay: 0.45s; }
+
+  /* REVEAL ON SCROLL */
+  .reveal { opacity: 0; transform: translateY(40px); transition: opacity 0.8s ease, transform 0.8s ease; }
+  .reveal.visible { opacity: 1; transform: translateY(0); }
+  .reveal-left { opacity: 0; transform: translateX(-50px); transition: opacity 0.8s ease, transform 0.8s ease; }
+  .reveal-left.visible { opacity: 1; transform: translateX(0); }
+  .reveal-right { opacity: 0; transform: translateX(50px); transition: opacity 0.8s ease, transform 0.8s ease; }
+  .reveal-right.visible { opacity: 1; transform: translateX(0); }
+
+  @media (max-width: 768px) {
+    .about-grid { grid-template-columns: 1fr; gap: 2.5rem; }
+    nav { padding: 0 1.2rem; }
+    .nav-links { gap: 1rem; }
+    .nav-links a { font-size: 0.75rem; }
+    .skills-card { padding: 1.5rem; }
+    .footer-bar { flex-direction: column; text-align: center; }
+  }
+</style>
+</head>
+<body>
+
+<nav id="navbar">
+  <div class="nav-logo" onclick="window.scrollTo({top:0,behavior:'smooth'})">
+    <span>Aahan</span><span>.dev</span>
+  </div>
+  <div class="nav-links">
+    <a href="#about">About</a>
+    <a href="#skills">Skills</a>
+    <a href="#projects">Projects</a>
+    <a href="#contact">Contact</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="hero-grid"></div>
+  <div class="orb1"></div>
+  <div class="orb2"></div>
+  <div class="hero-content">
+    <div class="hero-badge fade-in-up">✦ &nbsp; Portfolio 2026</div>
+    <h1 class="hero-name1 fade-in-up delay-1">Aahan</h1>
+    <h1 class="hero-name2 fade-in-up delay-1">Patel</h1>
+    <div class="hero-typewriter fade-in-up delay-2">
+      <span class="prompt">&gt; </span><span id="typed"></span><span class="cursor"></span>
+    </div>
+    <div class="hero-btns fade-in-up delay-3">
+      <a href="#projects" class="btn-primary">See my work →</a>
+      <a href="#contact" class="btn-secondary">Get in touch</a>
+    </div>
+  </div>
+  <div class="scroll-hint">
+    <div class="scroll-hint-line"></div>
+    <span class="scroll-hint-text">scroll</span>
+  </div>
+</section>
+
+<!-- ABOUT -->
+<div class="section-divider"></div>
+<section id="about">
+  <div class="about-grid">
+    <div class="reveal-left">
+      <div class="about-img-wrap">
+        <img class="about-img" src="https://images.unsplash.com/photo-1650661926447-9efb2610f64c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixlib=rb-4.1.0&q=80&w=1080" alt="desk setup" />
+        <div class="about-img-overlay"></div>
+        <div class="available-badge">
+          <div class="available-dot"></div>
+          <span>available for projects</span>
+        </div>
       </div>
     </div>
-  ) : (
-    <img src={src} alt={alt} className={className} style={style} {...rest} onError={() => setDidError(true)} />
-  );
-}
-
-const NAV_LINKS = ["about", "skills", "projects", "contact"];
-
-function Navbar() {
-  const [scrolled, setScrolled] = useState(false);
-  const [menuOpen, setMenuOpen] = useState(false);
-
-  useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 40);
-    window.addEventListener("scroll", onScroll);
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
-
-  const scrollTo = (id: string) => {
-    document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
-    setMenuOpen(false);
-  };
-
-  return (
-    <nav
-      style={{
-        position: "fixed",
-        top: 0,
-        left: 0,
-        right: 0,
-        zIndex: 100,
-        padding: "0 2.5rem",
-        height: "64px",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "space-between",
-        background: scrolled
-          ? "rgba(8, 8, 18, 0.92)"
-          : "transparent",
-        backdropFilter: scrolled ? "blur(14px)" : "none",
-        borderBottom: scrolled ? "1px solid rgba(255,255,255,0.06)" : "none",
-        transition: "background 0.4s ease, border 0.4s ease",
-      }}
-    >
-      <div
-        style={{
-          fontSize: "1.25rem",
-          letterSpacing: "0.06em",
-          color: "#fff",
-          cursor: "pointer",
-          fontFamily: "'Courier New', monospace",
-        }}
-        onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-      >
-        <span style={{ color: "#a78bfa" }}>Aahan</span>
-        <span style={{ color: "#fff", opacity: 0.5 }}>.dev</span>
+    <div class="reveal-right">
+      <p class="section-label">// about me</p>
+      <h2 class="section-title">Tinkering my way<br />through the web</h2>
+      <p class="about-text">Hey — I'm Aahan. A software engineer who started out curious about how websites actually work, and ended up deep in the rabbit hole of CSS animations and Python scripts at 2am.</p>
+      <p class="about-text">I'm actively learning the fundamentals — HTML structure, CSS styling, and Python scripting — and I love the feeling of finally getting that one property to behave. Still breaking things daily. That's the point.</p>
+      <div class="stats">
+        <div><div class="stat-num">3</div><div class="stat-label">Languages learning</div></div>
+        <div><div class="stat-num">10+</div><div class="stat-label">Projects built</div></div>
+        <div><div class="stat-num">∞</div><div class="stat-label">Stack traces read</div></div>
       </div>
+    </div>
+  </div>
+</section>
 
-      <div style={{ display: "flex", gap: "2rem", alignItems: "center" }}>
-        {NAV_LINKS.map((link) => (
-          <button
-            key={link}
-            onClick={() => scrollTo(link)}
-            style={{
-              background: "none",
-              border: "none",
-              color: "rgba(255,255,255,0.6)",
-              cursor: "pointer",
-              fontSize: "0.875rem",
-              letterSpacing: "0.08em",
-              textTransform: "uppercase",
-              padding: "4px 0",
-              borderBottom: "1px solid transparent",
-              transition: "color 0.2s, border-color 0.2s",
-              fontFamily: "'Courier New', monospace",
-            }}
-            onMouseEnter={(e) => {
-              (e.target as HTMLButtonElement).style.color = "#a78bfa";
-              (e.target as HTMLButtonElement).style.borderBottomColor = "#a78bfa";
-            }}
-            onMouseLeave={(e) => {
-              (e.target as HTMLButtonElement).style.color = "rgba(255,255,255,0.6)";
-              (e.target as HTMLButtonElement).style.borderBottomColor = "transparent";
-            }}
-          >
-            {link}
-          </button>
-        ))}
+<!-- SKILLS -->
+<section id="skills">
+  <div class="skills-inner">
+    <div class="skills-header reveal">
+      <p class="section-label">// what i know</p>
+      <h2 class="section-title" style="font-size:clamp(2rem,4vw,2.8rem)">Skills &amp; Progress</h2>
+    </div>
+    <div class="skills-card reveal">
+      <div class="skill-row">
+        <div class="skill-meta">
+          <div class="skill-left"><span class="skill-icon">🌐</span><span class="skill-name">HTML</span><span class="skill-note">— semantic &amp; accessible</span></div>
+          <span class="skill-pct" style="color:#f97316">72%</span>
+        </div>
+        <div class="skill-track"><div class="skill-bar" data-pct="72" style="background:linear-gradient(90deg,#f9731699,#f97316);box-shadow:0 0 10px #f9731666"></div></div>
       </div>
-    </nav>
-  );
-}
+      <div class="skill-row">
+        <div class="skill-meta">
+          <div class="skill-left"><span class="skill-icon">🎨</span><span class="skill-name">CSS</span><span class="skill-note">— flexbox, grid, animations</span></div>
+          <span class="skill-pct" style="color:#a78bfa">65%</span>
+        </div>
+        <div class="skill-track"><div class="skill-bar" data-pct="65" style="background:linear-gradient(90deg,#a78bfa99,#a78bfa);box-shadow:0 0 10px #a78bfa66"></div></div>
+      </div>
+      <div class="skill-row">
+        <div class="skill-meta">
+          <div class="skill-left"><span class="skill-icon">🐍</span><span class="skill-name">Python</span><span class="skill-note">— scripting &amp; automation</span></div>
+          <span class="skill-pct" style="color:#60a5fa">55%</span>
+        </div>
+        <div class="skill-track"><div class="skill-bar" data-pct="55" style="background:linear-gradient(90deg,#60a5fa99,#60a5fa);box-shadow:0 0 10px #60a5fa66"></div></div>
+      </div>
+      <div class="skill-row">
+        <div class="skill-meta">
+          <div class="skill-left"><span class="skill-icon">⚙️</span><span class="skill-name">Git</span><span class="skill-note">— version control basics</span></div>
+          <span class="skill-pct" style="color:#34d399">50%</span>
+        </div>
+        <div class="skill-track"><div class="skill-bar" data-pct="50" style="background:linear-gradient(90deg,#34d39999,#34d399);box-shadow:0 0 10px #34d39966"></div></div>
+      </div>
+      <div class="skill-row" style="margin-bottom:0">
+        <div class="skill-meta">
+          <div class="skill-left"><span class="skill-icon">⚡</span><span class="skill-name">JavaScript</span><span class="skill-note">— just getting started</span></div>
+          <span class="skill-pct" style="color:#fbbf24">38%</span>
+        </div>
+        <div class="skill-track"><div class="skill-bar" data-pct="38" style="background:linear-gradient(90deg,#fbbf2499,#fbbf24);box-shadow:0 0 10px #fbbf2466"></div></div>
+      </div>
+    </div>
+    <div class="tags reveal">
+      <span class="tag">CSS Grid</span>
+      <span class="tag">Flexbox</span>
+      <span class="tag">Python OOP</span>
+      <span class="tag">DOM manipulation</span>
+      <span class="tag">Responsive Design</span>
+      <span class="tag">Git branching</span>
+    </div>
+  </div>
+</section>
 
-function HeroSection() {
-  const [typedText, setTypedText] = useState("");
-  const phrases = ["Software Engineer.", "Learning CSS.", "Building with Python.", "Exploring HTML."];
-  const phraseIdx = useRef(0);
-  const charIdx = useRef(0);
-  const deleting = useRef(false);
+<!-- PROJECTS -->
+<div class="section-divider-blue"></div>
+<section id="projects">
+  <div class="projects-inner">
+    <div class="projects-header reveal">
+      <p class="section-label">// things i've built</p>
+      <h2 class="section-title" style="font-size:clamp(2rem,4vw,2.8rem)">Projects</h2>
+    </div>
+    <div class="projects-grid">
+      <div class="project-card reveal" style="--card-color:#a78bfa" onmouseenter="this.style.borderColor='#a78bfa44';this.style.boxShadow='0 20px 60px #a78bfa22'" onmouseleave="this.style.borderColor='rgba(255,255,255,0.07)';this.style.boxShadow='none'">
+        <div class="project-img-wrap">
+          <img class="project-img" src="https://images.unsplash.com/photo-1547658719-da2b51169166?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixlib=rb-4.1.0&q=80&w=1080" alt="Personal Blog" />
+          <div class="project-num" style="color:#a78bfa">01</div>
+        </div>
+        <div class="project-body">
+          <h3 class="project-title">Personal Blog</h3>
+          <p class="project-desc">A hand-coded HTML &amp; CSS blog where I document my learning journey. No frameworks, just raw markup and a whole lot of margin issues fixed.</p>
+          <div class="project-tags">
+            <span class="project-tag" style="background:#a78bfa15;border:1px solid #a78bfa33;color:#a78bfa">HTML</span>
+            <span class="project-tag" style="background:#a78bfa15;border:1px solid #a78bfa33;color:#a78bfa">CSS</span>
+          </div>
+        </div>
+      </div>
+      <div class="project-card reveal delay-1" onmouseenter="this.style.borderColor='#60a5fa44';this.style.boxShadow='0 20px 60px #60a5fa22'" onmouseleave="this.style.borderColor='rgba(255,255,255,0.07)';this.style.boxShadow='none'">
+        <div class="project-img-wrap">
+          <img class="project-img" src="https://images.unsplash.com/photo-1542831371-29b0f74f9713?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixlib=rb-4.1.0&q=80&w=1080" alt="Weather Scraper" />
+          <div class="project-num" style="color:#60a5fa">02</div>
+        </div>
+        <div class="project-body">
+          <h3 class="project-title">Weather Scraper</h3>
+          <p class="project-desc">A Python script that pulls weather data from an API and formats it cleanly in the terminal. My first real Python project — ugly but it works.</p>
+          <div class="project-tags">
+            <span class="project-tag" style="background:#60a5fa15;border:1px solid #60a5fa33;color:#60a5fa">Python</span>
+            <span class="project-tag" style="background:#60a5fa15;border:1px solid #60a5fa33;color:#60a5fa">APIs</span>
+          </div>
+        </div>
+      </div>
+      <div class="project-card reveal delay-2" onmouseenter="this.style.borderColor='#f9731644';this.style.boxShadow='0 20px 60px #f9731622'" onmouseleave="this.style.borderColor='rgba(255,255,255,0.07)';this.style.boxShadow='none'">
+        <div class="project-img-wrap">
+          <img class="project-img" src="https://images.unsplash.com/photo-1489875347897-49f64b51c1f8?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixlib=rb-4.1.0&q=80&w=1080" alt="CSS Art Gallery" />
+          <div class="project-num" style="color:#f97316">03</div>
+        </div>
+        <div class="project-body">
+          <h3 class="project-title">CSS Art Gallery</h3>
+          <p class="project-desc">Pure CSS experiments — gradients, clip-paths, and animations just to see what's possible without touching a single image file.</p>
+          <div class="project-tags">
+            <span class="project-tag" style="background:#f9731615;border:1px solid #f9731633;color:#f97316">CSS</span>
+            <span class="project-tag" style="background:#f9731615;border:1px solid #f9731633;color:#f97316">Animations</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
 
-  useEffect(() => {
-    const tick = () => {
-      const current = phrases[phraseIdx.current];
-      if (!deleting.current) {
-        setTypedText(current.slice(0, charIdx.current + 1));
-        charIdx.current++;
-        if (charIdx.current === current.length) {
-          deleting.current = true;
-          setTimeout(tick, 1400);
-          return;
-        }
-      } else {
-        setTypedText(current.slice(0, charIdx.current - 1));
-        charIdx.current--;
-        if (charIdx.current === 0) {
-          deleting.current = false;
-          phraseIdx.current = (phraseIdx.current + 1) % phrases.length;
-        }
+<!-- CONTACT -->
+<section id="contact">
+  <div class="contact-glow"></div>
+  <div class="contact-inner reveal">
+    <p class="section-label">// say hi</p>
+    <h2 class="contact-title">Let's build<br />something cool</h2>
+    <p class="contact-desc">Whether it's feedback on my code, a collab idea, or just want to talk tech — my inbox is always open. (I check it more than I'd like to admit.)</p>
+    <a class="email-btn" href="mailto:aahan.patel@gmail.com">📬 aahan.patel@gmail.com</a>
+    <div class="social-links">
+      <a href="#" class="social-link">GitHub</a>
+      <a href="#" class="social-link">Twitter / X</a>
+      <a href="#" class="social-link">LinkedIn</a>
+    </div>
+  </div>
+  <div class="footer-bar">
+    <span>Aahan Patel — 2026</span>
+    <span>built with HTML, CSS &amp; curiosity</span>
+  </div>
+</section>
+
+<script>
+  // NAV scroll
+  window.addEventListener('scroll', () => {
+    document.getElementById('navbar').classList.toggle('scrolled', window.scrollY > 40);
+  });
+
+  // TYPEWRITER
+  const phrases = ['Software Engineer.', 'Learning CSS.', 'Building with Python.', 'Exploring HTML.'];
+  let pIdx = 0, cIdx = 0, deleting = false;
+  const el = document.getElementById('typed');
+  function tick() {
+    const cur = phrases[pIdx];
+    if (!deleting) {
+      el.textContent = cur.slice(0, cIdx + 1);
+      cIdx++;
+      if (cIdx === cur.length) { deleting = true; setTimeout(tick, 1400); return; }
+    } else {
+      el.textContent = cur.slice(0, cIdx - 1);
+      cIdx--;
+      if (cIdx === 0) { deleting = false; pIdx = (pIdx + 1) % phrases.length; }
+    }
+    setTimeout(tick, deleting ? 55 : 80);
+  }
+  setTimeout(tick, 800);
+
+  // SCROLL REVEAL
+  const revealEls = document.querySelectorAll('.reveal, .reveal-left, .reveal-right');
+  const obs = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+  }, { threshold: 0.15 });
+  revealEls.forEach(el => obs.observe(el));
+
+  // SKILL BARS
+  const skillObs = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        const bars = e.target.querySelectorAll('.skill-bar');
+        bars.forEach((bar, i) => {
+          setTimeout(() => { bar.style.width = bar.dataset.pct + '%'; }, i * 150);
+        });
+        skillObs.unobserve(e.target);
       }
-      setTimeout(tick, deleting.current ? 55 : 80);
-    };
-    const t = setTimeout(tick, 600);
-    return () => clearTimeout(t);
-  }, []);
-
-  return (
-    <section
-      id="hero"
-      style={{
-        minHeight: "100vh",
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        justifyContent: "center",
-        position: "relative",
-        overflow: "hidden",
-        background: "linear-gradient(135deg, #0a0a16 0%, #0f0826 50%, #0a0a16 100%)",
-      }}
-    >
-      {/* animated grid background */}
-      <div
-        style={{
-          position: "absolute",
-          inset: 0,
-          backgroundImage:
-            "linear-gradient(rgba(167,139,250,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(167,139,250,0.04) 1px, transparent 1px)",
-          backgroundSize: "50px 50px",
-          maskImage: "radial-gradient(ellipse 80% 60% at 50% 50%, black 40%, transparent 100%)",
-        }}
-      />
-
-      {/* glow orbs */}
-      <div
-        style={{
-          position: "absolute",
-          top: "20%",
-          left: "15%",
-          width: "340px",
-          height: "340px",
-          borderRadius: "50%",
-          background: "radial-gradient(circle, rgba(124,58,237,0.22) 0%, transparent 70%)",
-          filter: "blur(40px)",
-          animation: "floatOrb 7s ease-in-out infinite",
-        }}
-      />
-      <div
-        style={{
-          position: "absolute",
-          bottom: "25%",
-          right: "12%",
-          width: "260px",
-          height: "260px",
-          borderRadius: "50%",
-          background: "radial-gradient(circle, rgba(59,130,246,0.18) 0%, transparent 70%)",
-          filter: "blur(50px)",
-          animation: "floatOrb 9s ease-in-out infinite reverse",
-        }}
-      />
-
-      <motion.div
-        initial={{ opacity: 0, y: 40 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.9, ease: "easeOut" }}
-        style={{ position: "relative", zIndex: 2, textAlign: "center", padding: "0 1.5rem" }}
-      >
-        <div
-          style={{
-            display: "inline-block",
-            padding: "4px 14px",
-            background: "rgba(167,139,250,0.1)",
-            border: "1px solid rgba(167,139,250,0.3)",
-            borderRadius: "99px",
-            color: "#a78bfa",
-            fontSize: "0.78rem",
-            letterSpacing: "0.14em",
-            textTransform: "uppercase",
-            marginBottom: "1.8rem",
-            fontFamily: "'Courier New', monospace",
-          }}
-        >
-          ✦ &nbsp; Portfolio 2026
-        </div>
-
-        <h1
-          style={{
-            fontSize: "clamp(3rem, 8vw, 7rem)",
-            color: "#fff",
-            lineHeight: 1.0,
-            marginBottom: "0.4rem",
-            letterSpacing: "-0.03em",
-          }}
-        >
-          Aahan
-        </h1>
-        <h1
-          style={{
-            fontSize: "clamp(3rem, 8vw, 7rem)",
-            background: "linear-gradient(90deg, #a78bfa, #60a5fa, #a78bfa)",
-            backgroundSize: "200% auto",
-            WebkitBackgroundClip: "text",
-            WebkitTextFillColor: "transparent",
-            backgroundClip: "text",
-            lineHeight: 1.0,
-            marginBottom: "2.2rem",
-            letterSpacing: "-0.03em",
-            animation: "gradientShift 3s linear infinite",
-          }}
-        >
-          Patel
-        </h1>
-
-        <div
-          style={{
-            fontSize: "clamp(1rem, 2.5vw, 1.4rem)",
-            color: "rgba(255,255,255,0.55)",
-            fontFamily: "'Courier New', monospace",
-            minHeight: "2em",
-            marginBottom: "2.8rem",
-          }}
-        >
-          <span style={{ color: "#a78bfa" }}>&gt; </span>
-          {typedText}
-          <span
-            style={{
-              display: "inline-block",
-              width: "2px",
-              height: "1.2em",
-              background: "#a78bfa",
-              verticalAlign: "middle",
-              marginLeft: "2px",
-              animation: "blink 1s step-end infinite",
-            }}
-          />
-        </div>
-
-        <div style={{ display: "flex", gap: "1rem", justifyContent: "center", flexWrap: "wrap" }}>
-          <button
-            onClick={() => document.getElementById("projects")?.scrollIntoView({ behavior: "smooth" })}
-            style={{
-              padding: "0.75rem 2rem",
-              background: "linear-gradient(135deg, #7c3aed, #4f46e5)",
-              color: "#fff",
-              border: "none",
-              borderRadius: "8px",
-              cursor: "pointer",
-              fontSize: "0.9rem",
-              letterSpacing: "0.05em",
-              boxShadow: "0 0 24px rgba(124,58,237,0.4)",
-              transition: "transform 0.2s, box-shadow 0.2s",
-            }}
-            onMouseEnter={(e) => {
-              (e.currentTarget as HTMLButtonElement).style.transform = "translateY(-2px)";
-              (e.currentTarget as HTMLButtonElement).style.boxShadow = "0 0 36px rgba(124,58,237,0.65)";
-            }}
-            onMouseLeave={(e) => {
-              (e.currentTarget as HTMLButtonElement).style.transform = "translateY(0)";
-              (e.currentTarget as HTMLButtonElement).style.boxShadow = "0 0 24px rgba(124,58,237,0.4)";
-            }}
-          >
-            See my work →
-          </button>
-          <button
-            onClick={() => document.getElementById("contact")?.scrollIntoView({ behavior: "smooth" })}
-            style={{
-              padding: "0.75rem 2rem",
-              background: "transparent",
-              color: "rgba(255,255,255,0.7)",
-              border: "1px solid rgba(255,255,255,0.15)",
-              borderRadius: "8px",
-              cursor: "pointer",
-              fontSize: "0.9rem",
-              letterSpacing: "0.05em",
-              transition: "border-color 0.2s, color 0.2s",
-            }}
-            onMouseEnter={(e) => {
-              (e.currentTarget as HTMLButtonElement).style.borderColor = "#a78bfa";
-              (e.currentTarget as HTMLButtonElement).style.color = "#a78bfa";
-            }}
-            onMouseLeave={(e) => {
-              (e.currentTarget as HTMLButtonElement).style.borderColor = "rgba(255,255,255,0.15)";
-              (e.currentTarget as HTMLButtonElement).style.color = "rgba(255,255,255,0.7)";
-            }}
-          >
-            Get in touch
-          </button>
-        </div>
-      </motion.div>
-
-      {/* scroll hint */}
-      <div
-        style={{
-          position: "absolute",
-          bottom: "2rem",
-          left: "50%",
-          transform: "translateX(-50%)",
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          gap: "6px",
-          opacity: 0.3,
-          animation: "fadeDown 2s ease-in-out infinite",
-        }}
-      >
-        <div style={{ width: "1px", height: "40px", background: "linear-gradient(to bottom, transparent, #a78bfa)" }} />
-        <span style={{ fontSize: "0.65rem", letterSpacing: "0.18em", color: "#fff", textTransform: "uppercase", fontFamily: "monospace" }}>scroll</span>
-      </div>
-
-      <style>{`
-        @keyframes floatOrb {
-          0%, 100% { transform: translateY(0px); }
-          50% { transform: translateY(-28px); }
-        }
-        @keyframes blink {
-          0%, 100% { opacity: 1; }
-          50% { opacity: 0; }
-        }
-        @keyframes gradientShift {
-          0% { background-position: 0% center; }
-          100% { background-position: 200% center; }
-        }
-        @keyframes fadeDown {
-          0%, 100% { opacity: 0.3; transform: translateX(-50%) translateY(0); }
-          50% { opacity: 0.6; transform: translateX(-50%) translateY(6px); }
-        }
-      `}</style>
-    </section>
-  );
-}
-
-function AboutSection() {
-  return (
-    <section
-      id="about"
-      style={{
-        background: "#08080f",
-        padding: "7rem 2rem",
-        position: "relative",
-        overflow: "hidden",
-      }}
-    >
-      <div
-        style={{
-          position: "absolute",
-          top: 0,
-          left: 0,
-          right: 0,
-          height: "1px",
-          background: "linear-gradient(90deg, transparent, rgba(167,139,250,0.4), transparent)",
-        }}
-      />
-      <div style={{ maxWidth: "1100px", margin: "0 auto", display: "grid", gridTemplateColumns: "1fr 1fr", gap: "5rem", alignItems: "center" }}>
-        <motion.div
-          initial={{ opacity: 0, x: -50 }}
-          whileInView={{ opacity: 1, x: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.8 }}
-        >
-          <div
-            style={{
-              position: "relative",
-              borderRadius: "16px",
-              overflow: "hidden",
-              border: "1px solid rgba(167,139,250,0.2)",
-              boxShadow: "0 0 60px rgba(124,58,237,0.15)",
-            }}
-          >
-            <ImageWithFallback
-              src="https://images.unsplash.com/photo-1650661926447-9efb2610f64c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxwcm9ncmFtbWVyJTIwZGVzayUyMHNldHVwJTIwZGFyayUyMGFlc3RoZXRpY3xlbnwxfHx8fDE3OTExNzI1NjZ8MA&ixlib=rb-4.1.0&q=80&w=1080"
-              alt="desk setup"
-              style={{ width: "100%", height: "380px", objectFit: "cover", display: "block" }}
-            />
-            <div
-              style={{
-                position: "absolute",
-                inset: 0,
-                background: "linear-gradient(to top, rgba(8,8,15,0.7) 0%, transparent 60%)",
-              }}
-            />
-            <div
-              style={{
-                position: "absolute",
-                bottom: "1.2rem",
-                left: "1.2rem",
-                background: "rgba(8,8,15,0.7)",
-                backdropFilter: "blur(10px)",
-                border: "1px solid rgba(167,139,250,0.2)",
-                borderRadius: "8px",
-                padding: "0.5rem 0.9rem",
-                display: "flex",
-                alignItems: "center",
-                gap: "8px",
-              }}
-            >
-              <div style={{ width: "8px", height: "8px", borderRadius: "50%", background: "#22c55e", boxShadow: "0 0 8px #22c55e", animation: "blink2 2s ease-in-out infinite" }} />
-              <span style={{ color: "rgba(255,255,255,0.7)", fontSize: "0.8rem", fontFamily: "monospace" }}>available for projects</span>
-            </div>
-          </div>
-          <style>{`@keyframes blink2 { 0%,100%{opacity:1}50%{opacity:0.4} }`}</style>
-        </motion.div>
-
-        <motion.div
-          initial={{ opacity: 0, x: 50 }}
-          whileInView={{ opacity: 1, x: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.8 }}
-        >
-          <p style={{ color: "#a78bfa", fontSize: "0.8rem", letterSpacing: "0.18em", textTransform: "uppercase", marginBottom: "1rem", fontFamily: "monospace" }}>// about me</p>
-          <h2
-            style={{
-              fontSize: "clamp(2rem, 4vw, 3rem)",
-              color: "#fff",
-              lineHeight: 1.15,
-              marginBottom: "1.5rem",
-              letterSpacing: "-0.02em",
-            }}
-          >
-            Tinkering my way<br />through the web
-          </h2>
-          <p style={{ color: "rgba(255,255,255,0.5)", lineHeight: 1.8, marginBottom: "1rem", fontSize: "0.95rem" }}>
-            Hey — I'm AAhan. A software engineer who started out curious about how websites actually work, and ended up deep in the rabbit hole of CSS animations and Python scripts at 2am.
-          </p>
-          <p style={{ color: "rgba(255,255,255,0.5)", lineHeight: 1.8, marginBottom: "2rem", fontSize: "0.95rem" }}>
-            I'm actively learning the fundamentals — HTML structure, CSS styling, and Python scripting — and I love the feeling of finally getting that one property to behave. Still breaking things daily. That's the point.
-          </p>
-          <div style={{ display: "flex", gap: "2rem" }}>
-            {[{ num: "3", label: "Languages learning" }, { num: "10+", label: "Projects built" }, { num: "∞", label: "Stack traces read" }].map((stat) => (
-              <div key={stat.label}>
-                <div style={{ fontSize: "1.8rem", color: "#a78bfa", letterSpacing: "-0.02em" }}>{stat.num}</div>
-                <div style={{ fontSize: "0.75rem", color: "rgba(255,255,255,0.35)", letterSpacing: "0.05em" }}>{stat.label}</div>
-              </div>
-            ))}
-          </div>
-        </motion.div>
-      </div>
-    </section>
-  );
-}
-
-const SKILLS = [
-  { name: "HTML", pct: 72, color: "#f97316", icon: "🌐", note: "semantic & accessible" },
-  { name: "CSS", pct: 65, color: "#a78bfa", icon: "🎨", note: "flexbox, grid, animations" },
-  { name: "Python", pct: 55, color: "#60a5fa", icon: "🐍", note: "scripting & automation" },
-  { name: "Git", pct: 50, color: "#34d399", icon: "⚙️", note: "version control basics" },
-  { name: "JavaScript", pct: 38, color: "#fbbf24", icon: "⚡", note: "just getting started" },
-];
-
-function SkillBar({ name, pct, color, icon, note, delay }: any) {
-  const [animated, setAnimated] = useState(false);
-  const ref = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const obs = new IntersectionObserver(
-      ([entry]) => { if (entry.isIntersecting) setAnimated(true); },
-      { threshold: 0.3 }
-    );
-    if (ref.current) obs.observe(ref.current);
-    return () => obs.disconnect();
-  }, []);
-
-  return (
-    <div ref={ref} style={{ marginBottom: "1.6rem" }}>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.5rem" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-          <span style={{ fontSize: "1.1rem" }}>{icon}</span>
-          <span style={{ color: "#fff", fontSize: "0.95rem", letterSpacing: "0.02em" }}>{name}</span>
-          <span style={{ color: "rgba(255,255,255,0.3)", fontSize: "0.75rem", fontFamily: "monospace" }}>— {note}</span>
-        </div>
-        <span style={{ color, fontFamily: "monospace", fontSize: "0.85rem" }}>{pct}%</span>
-      </div>
-      <div
-        style={{
-          height: "6px",
-          borderRadius: "99px",
-          background: "rgba(255,255,255,0.07)",
-          overflow: "hidden",
-        }}
-      >
-        <div
-          style={{
-            height: "100%",
-            borderRadius: "99px",
-            width: animated ? `${pct}%` : "0%",
-            background: `linear-gradient(90deg, ${color}99, ${color})`,
-            boxShadow: `0 0 10px ${color}66`,
-            transition: `width 1.2s cubic-bezier(0.34, 1.56, 0.64, 1) ${delay}ms`,
-          }}
-        />
-      </div>
-    </div>
-  );
-}
-
-function SkillsSection() {
-  return (
-    <section
-      id="skills"
-      style={{
-        background: "linear-gradient(180deg, #08080f 0%, #0d0b1a 100%)",
-        padding: "7rem 2rem",
-        position: "relative",
-      }}
-    >
-      <div style={{ maxWidth: "860px", margin: "0 auto" }}>
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.7 }}
-          style={{ textAlign: "center", marginBottom: "4rem" }}
-        >
-          <p style={{ color: "#a78bfa", fontSize: "0.8rem", letterSpacing: "0.18em", textTransform: "uppercase", marginBottom: "0.8rem", fontFamily: "monospace" }}>// what i know</p>
-          <h2 style={{ fontSize: "clamp(2rem, 4vw, 2.8rem)", color: "#fff", letterSpacing: "-0.02em" }}>Skills & Progress</h2>
-        </motion.div>
-
-        <div
-          style={{
-            background: "rgba(255,255,255,0.03)",
-            border: "1px solid rgba(255,255,255,0.07)",
-            borderRadius: "20px",
-            padding: "2.5rem 3rem",
-            backdropFilter: "blur(10px)",
-          }}
-        >
-          {SKILLS.map((s, i) => (
-            <SkillBar key={s.name} {...s} delay={i * 150} />
-          ))}
-        </div>
-
-        {/* currently learning badges */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6, delay: 0.4 }}
-          style={{ marginTop: "2rem", display: "flex", flexWrap: "wrap", gap: "0.75rem", justifyContent: "center" }}
-        >
-          {["CSS Grid", "Flexbox", "Python OOP", "DOM manipulation", "Responsive Design", "Git branching"].map((tag) => (
-            <span
-              key={tag}
-              style={{
-                padding: "0.35rem 0.9rem",
-                background: "rgba(167,139,250,0.08)",
-                border: "1px solid rgba(167,139,250,0.2)",
-                borderRadius: "99px",
-                color: "rgba(255,255,255,0.55)",
-                fontSize: "0.78rem",
-                fontFamily: "monospace",
-                letterSpacing: "0.04em",
-              }}
-            >
-              {tag}
-            </span>
-          ))}
-        </motion.div>
-      </div>
-    </section>
-  );
-}
-
-const PROJECTS = [
-  {
-    title: "Personal Blog",
-    desc: "A hand-coded HTML & CSS blog where I document my learning journey. No frameworks, just raw markup and a whole lot of margin issues fixed.",
-    tags: ["HTML", "CSS"],
-    img: "https://images.unsplash.com/photo-1547658719-da2b51169166?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxhYnN0cmFjdCUyMGNvZGUlMjB3ZWIlMjBkZXZlbG9wbWVudCUyMHByb2plY3R8ZW58MXx8fHwxNzkxMTcyNTY5fDA&ixlib=rb-4.1.0&q=80&w=1080",
-    color: "#a78bfa",
-    num: "01",
-  },
-  {
-    title: "Weather Scraper",
-    desc: "A Python script that pulls weather data from an API and formats it cleanly in the terminal. My first real Python project — ugly but it works.",
-    tags: ["Python", "APIs"],
-    img: "https://images.unsplash.com/photo-1542831371-29b0f74f9713?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxweXRob24lMjBwcm9ncmFtbWluZyUyMHNjcmlwdCUyMGRhdGF8ZW58MXx8fHwxNzkxMTcyNTY5fDA&ixlib=rb-4.1.0&q=80&w=1080",
-    color: "#60a5fa",
-    num: "02",
-  },
-  {
-    title: "CSS Art Gallery",
-    desc: "Pure CSS experiments — gradients, clip-paths, and animations just to see what's possible without touching a single image file.",
-    tags: ["CSS", "Animations"],
-    img: "https://images.unsplash.com/photo-1489875347897-49f64b51c1f8?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxjb2RpbmclMjB0ZXJtaW5hbCUyMHNjcmVlbiUyMGRhcmt8ZW58MXx8fHwxNzkxMTcyNTY3fDA&ixlib=rb-4.1.0&q=80&w=1080",
-    color: "#f97316",
-    num: "03",
-  },
-];
-
-function ProjectCard({ project, idx }: { project: typeof PROJECTS[0]; idx: number }) {
-  const [hovered, setHovered] = useState(false);
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 50 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true }}
-      transition={{ duration: 0.7, delay: idx * 0.15 }}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-      style={{
-        borderRadius: "16px",
-        overflow: "hidden",
-        border: `1px solid ${hovered ? project.color + "44" : "rgba(255,255,255,0.07)"}`,
-        background: "rgba(255,255,255,0.025)",
-        transition: "border-color 0.3s, transform 0.3s, box-shadow 0.3s",
-        transform: hovered ? "translateY(-6px)" : "translateY(0)",
-        boxShadow: hovered ? `0 20px 60px ${project.color}22` : "none",
-        cursor: "pointer",
-      }}
-    >
-      <div style={{ position: "relative", overflow: "hidden" }}>
-        <ImageWithFallback
-          src={project.img}
-          alt={project.title}
-          style={{
-            width: "100%",
-            height: "200px",
-            objectFit: "cover",
-            display: "block",
-            transform: hovered ? "scale(1.05)" : "scale(1)",
-            transition: "transform 0.5s ease",
-            filter: hovered ? "brightness(0.7)" : "brightness(0.5)",
-          }}
-        />
-        <div
-          style={{
-            position: "absolute",
-            top: "1rem",
-            left: "1rem",
-            fontFamily: "monospace",
-            fontSize: "3rem",
-            color: project.color,
-            opacity: 0.15,
-            lineHeight: 1,
-            letterSpacing: "-0.05em",
-          }}
-        >
-          {project.num}
-        </div>
-      </div>
-      <div style={{ padding: "1.5rem" }}>
-        <h3 style={{ color: "#fff", marginBottom: "0.5rem", fontSize: "1.05rem", letterSpacing: "-0.01em" }}>{project.title}</h3>
-        <p style={{ color: "rgba(255,255,255,0.45)", fontSize: "0.85rem", lineHeight: 1.7, marginBottom: "1rem" }}>{project.desc}</p>
-        <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
-          {project.tags.map((tag) => (
-            <span
-              key={tag}
-              style={{
-                padding: "3px 10px",
-                borderRadius: "99px",
-                background: `${project.color}15`,
-                border: `1px solid ${project.color}33`,
-                color: project.color,
-                fontSize: "0.72rem",
-                fontFamily: "monospace",
-                letterSpacing: "0.06em",
-              }}
-            >
-              {tag}
-            </span>
-          ))}
-        </div>
-      </div>
-    </motion.div>
-  );
-}
-
-function ProjectsSection() {
-  return (
-    <section
-      id="projects"
-      style={{
-        background: "#08080f",
-        padding: "7rem 2rem",
-        position: "relative",
-      }}
-    >
-      <div
-        style={{
-          position: "absolute",
-          top: 0,
-          left: 0,
-          right: 0,
-          height: "1px",
-          background: "linear-gradient(90deg, transparent, rgba(96,165,250,0.3), transparent)",
-        }}
-      />
-      <div style={{ maxWidth: "1100px", margin: "0 auto" }}>
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.7 }}
-          style={{ marginBottom: "3.5rem" }}
-        >
-          <p style={{ color: "#a78bfa", fontSize: "0.8rem", letterSpacing: "0.18em", textTransform: "uppercase", marginBottom: "0.8rem", fontFamily: "monospace" }}>// things i've built</p>
-          <h2 style={{ fontSize: "clamp(2rem, 4vw, 2.8rem)", color: "#fff", letterSpacing: "-0.02em" }}>Projects</h2>
-        </motion.div>
-
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))", gap: "1.5rem" }}>
-          {PROJECTS.map((p, i) => (
-            <ProjectCard key={p.title} project={p} idx={i} />
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-}
-
-function ContactSection() {
-  const [copied, setCopied] = useState(false);
-  const email = "aahan.patel@gmail.com";
-
-  const copyEmail = () => {
-    navigator.clipboard.writeText(email);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  };
-
-  return (
-    <section
-      id="contact"
-      style={{
-        background: "linear-gradient(180deg, #08080f 0%, #0a0620 100%)",
-        padding: "7rem 2rem 5rem",
-        position: "relative",
-        overflow: "hidden",
-      }}
-    >
-      <div
-        style={{
-          position: "absolute",
-          bottom: "-100px",
-          left: "50%",
-          transform: "translateX(-50%)",
-          width: "600px",
-          height: "300px",
-          background: "radial-gradient(ellipse, rgba(124,58,237,0.15) 0%, transparent 70%)",
-          filter: "blur(40px)",
-        }}
-      />
-      <div style={{ maxWidth: "700px", margin: "0 auto", textAlign: "center", position: "relative", zIndex: 1 }}>
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.8 }}
-        >
-          <p style={{ color: "#a78bfa", fontSize: "0.8rem", letterSpacing: "0.18em", textTransform: "uppercase", marginBottom: "0.8rem", fontFamily: "monospace" }}>// say hi</p>
-          <h2 style={{ fontSize: "clamp(2.2rem, 5vw, 3.5rem)", color: "#fff", letterSpacing: "-0.03em", marginBottom: "1.2rem" }}>
-            Let's build<br />something cool
-          </h2>
-          <p style={{ color: "rgba(255,255,255,0.45)", lineHeight: 1.8, marginBottom: "2.5rem", fontSize: "0.95rem" }}>
-            Whether it's feedback on my code, a collab idea, or just want to talk tech — my inbox is always open. (I check it more than I'd like to admit.)
-          </p>
-
-          <button
-            onClick={copyEmail}
-            style={{
-              display: "inline-flex",
-              alignItems: "center",
-              gap: "10px",
-              padding: "1rem 2rem",
-              background: copied ? "rgba(34,197,94,0.1)" : "rgba(167,139,250,0.1)",
-              border: `1px solid ${copied ? "rgba(34,197,94,0.35)" : "rgba(167,139,250,0.3)"}`,
-              borderRadius: "12px",
-              color: copied ? "#22c55e" : "#a78bfa",
-              fontSize: "0.95rem",
-              fontFamily: "monospace",
-              cursor: "pointer",
-              transition: "all 0.3s ease",
-              letterSpacing: "0.03em",
-              marginBottom: "2.5rem",
-            }}
-          >
-            {copied ? "✓ copied!" : `📬 ${email}`}
-          </button>
-
-          <div style={{ display: "flex", gap: "1rem", justifyContent: "center" }}>
-            {[
-              { label: "GitHub", href: "#" },
-              { label: "Twitter / X", href: "#" },
-              { label: "LinkedIn", href: "#" },
-            ].map((link) => (
-              <a
-                key={link.label}
-                href={link.href}
-                style={{
-                  padding: "0.5rem 1.2rem",
-                  borderRadius: "8px",
-                  border: "1px solid rgba(255,255,255,0.1)",
-                  color: "rgba(255,255,255,0.45)",
-                  textDecoration: "none",
-                  fontSize: "0.82rem",
-                  fontFamily: "monospace",
-                  transition: "color 0.2s, border-color 0.2s",
-                }}
-                onMouseEnter={(e) => {
-                  (e.currentTarget as HTMLAnchorElement).style.color = "#fff";
-                  (e.currentTarget as HTMLAnchorElement).style.borderColor = "rgba(255,255,255,0.3)";
-                }}
-                onMouseLeave={(e) => {
-                  (e.currentTarget as HTMLAnchorElement).style.color = "rgba(255,255,255,0.45)";
-                  (e.currentTarget as HTMLAnchorElement).style.borderColor = "rgba(255,255,255,0.1)";
-                }}
-              >
-                {link.label}
-              </a>
-            ))}
-          </div>
-        </motion.div>
-      </div>
-
-      <div
-        style={{
-          maxWidth: "1100px",
-          margin: "4rem auto 0",
-          paddingTop: "2rem",
-          borderTop: "1px solid rgba(255,255,255,0.05)",
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-        }}
-      >
-        <span style={{ color: "rgba(255,255,255,0.2)", fontSize: "0.78rem", fontFamily: "monospace" }}>Aahan Patel — 2026</span>
-        <span style={{ color: "rgba(255,255,255,0.2)", fontSize: "0.78rem", fontFamily: "monospace" }}>built with HTML, CSS & curiosity</span>
-      </div>
-    </section>
-  );
-}
-
-export default function Portfolio() {
-  return (
-    <div style={{ background: "#08080f", minHeight: "100vh", fontFamily: "'Inter', 'Helvetica Neue', sans-serif" }}>
-      <Navbar />
-      <HeroSection />
-      <AboutSection />
-      <SkillsSection />
-      <ProjectsSection />
-      <ContactSection />
-    </div>
-  );
-}
+    });
+  }, { threshold: 0.3 });
+  const skillsCard = document.querySelector('.skills-card');
+  if (skillsCard) skillObs.observe(skillsCard);
+</script>
+</body>
+</html>
