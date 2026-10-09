@@ -6,164 +6,52 @@
 <title>Aahan Patel</title>
 <meta name="description" content="Aahan Patel. Teaching myself to code: HTML, CSS, Python.">
 <style>
-  :root {
-    --paper: #f3efe6;
-    --ink: #1d1b18;
-    --soft: #6b665c;
-    --rule: #cfc8b8;
-    --mark: #a8381f;
-  }
-  * { box-sizing: border-box; }
-  html { font-size: 18px; }
-  body {
-    margin: 0;
-    background: var(--paper);
-    color: var(--ink);
-    font-family: Georgia, "Iowan Old Style", "Times New Roman", serif;
-    line-height: 1.6;
-  }
-  a { color: var(--ink); text-decoration-thickness: 1px; text-underline-offset: 3px; }
-  a:hover { color: var(--mark); }
-  ::selection { background: var(--ink); color: var(--paper); }
-
-  .page { max-width: 44rem; margin: 0 auto; padding: 2.5rem 1.5rem 4rem; }
-
-  header {
-    display: flex; justify-content: space-between; align-items: baseline;
-    flex-wrap: wrap; gap: .5rem 2rem;
-    padding-bottom: 1rem; border-bottom: 1px solid var(--ink);
-    font-size: .9rem;
-  }
-  header .name { font-weight: bold; text-decoration: none; }
-  header nav a { margin-left: 1.25rem; color: var(--soft); text-decoration: none; }
-  header nav a:hover { color: var(--mark); text-decoration: underline; }
-
-  h1 {
-    font-size: clamp(2.4rem, 7vw, 3.6rem);
-    line-height: 1.05; font-weight: normal; letter-spacing: -0.01em;
-    margin: 4rem 0 1.5rem;
-  }
-  h1 em { font-style: italic; color: var(--mark); }
-
-  .lede { font-size: 1.15rem; max-width: 34rem; }
-  p { margin: 0 0 1.1rem; }
-
-  section { margin-top: 4.5rem; }
-  h2 {
-    font-size: .8rem; font-weight: normal; letter-spacing: .12em; text-transform: uppercase;
-    color: var(--soft); margin: 0 0 1.25rem;
-    padding-top: .6rem; border-top: 1px solid var(--rule);
-  }
-
-  .learning dt { font-weight: bold; margin-top: 1rem; }
-  .learning dd { margin: 0; color: var(--soft); }
-
-  .work { list-style: none; padding: 0; margin: 0; }
-  .work li {
-    display: grid; grid-template-columns: 4rem 1fr; gap: 0 1rem;
-    padding: 1.1rem 0; border-bottom: 1px solid var(--rule);
-  }
-  .work li:first-child { padding-top: 0; }
-  .work .yr { font-family: "Courier New", monospace; font-size: .8rem; color: var(--soft); padding-top: .35rem; }
-  .work h3 { margin: 0 0 .25rem; font-size: 1.05rem; }
-  .work p { margin: 0; color: var(--soft); font-size: .95rem; }
-  .work .stack { font-family: "Courier New", monospace; font-size: .75rem; color: var(--mark); margin-top: .35rem; }
-
-  .note { font-style: italic; color: var(--soft); font-size: .95rem; }
-
-  footer {
-    margin-top: 5rem; padding-top: 1rem; border-top: 1px solid var(--ink);
-    display: flex; justify-content: space-between; flex-wrap: wrap; gap: .5rem;
-    font-size: .8rem; color: var(--soft);
-  }
-
-  @media (max-width: 520px) {
-    html { font-size: 17px; }
-    .work li { grid-template-columns: 1fr; }
-    .work .yr { padding-top: 0; }
-  }
+body { max-width: 40rem; margin: 2rem auto; padding: 0 1rem; font-family: Georgia, serif; line-height: 1.6; color: #222; background: #fff; }
+h1 { font-size: 2.2rem; line-height: 1.2; }
+h2 { margin-top: 2rem; }
+a { color: #a8381f; }
+hr { border: 0; border-top: 1px solid #ccc; }
+li { margin-bottom: .5rem; }
 </style>
 </head>
 <body>
-<div class="page">
 
-  <header>
-    <a class="name" href="#top">Aahan Patel</a>
-    <nav>
-      <a href="#about">about</a>
-      <a href="#learning">learning</a>
-      <a href="#work">work</a>
-      <a href="#contact">contact</a>
-    </nav>
-  </header>
+<h2>Aahan Patel</h2>
+<p>
+<a href="#about">about</a> |
+<a href="#learning">learning</a> |
+<a href="#work">work</a> |
+<a href="#contact">contact</a>
+</p>
+<hr>
 
-  <main id="top">
-    <h1>I'm Aahan. I'm learning to build things for the <em>web.</em></h1>
-    <p class="lede">I teach myself to code, mostly at night, with too many tabs open. HTML, CSS and Python so far. I break things on purpose to see how they work, then spend an hour fixing them.</p>
+<h1>I'm Aahan. I'm learning to build things for the web.</h1>
+<p>I teach myself to code, mostly at night, with too many tabs open. HTML, CSS and Python so far. I break things on purpose to see how they work, then spend an hour fixing them.</p>
 
-    <section id="about">
-      <h2>About</h2>
-      <p>I started because I wanted to know how a website actually gets from someone's head onto a screen. That turned into making small pages, then small scripts, and now I can't stop.</p>
-      <p>I'm not an expert at anything yet. This page is where I keep what I've made so I can look back and see how far it's come.</p>
-    </section>
+<h2 id="about">About</h2>
+<p>I started because I wanted to know how a website actually gets from someone's head onto a screen. That turned into making small pages, then small scripts, and now I can't stop.</p>
+<p>I'm not an expert at anything yet. This page is where I keep what I've made so I can look back and see how far it's come.</p>
 
-    <section id="learning">
-      <h2>Where I am right now</h2>
-      <dl class="learning">
-        <dt>HTML and CSS</dt>
-        <dd>The part I'm most comfortable with. Layout with flexbox and grid, and I've started on animations.</dd>
-        <dt>Python</dt>
-        <dd>Small scripts and calling APIs. Classes are the thing I'm working on now.</dd>
-        <dt>Git</dt>
-        <dd>Commit, branch, merge. I still look up how to undo things.</dd>
-        <dt>JavaScript</dt>
-        <dd>Just started. Mostly poking at the DOM.</dd>
-      </dl>
-    </section>
+<h2 id="learning">Where I am right now</h2>
+<ul>
+<li><b>HTML and CSS</b> - The part I'm most comfortable with. Layout with flexbox and grid, and I've started on animations.</li>
+<li><b>Python</b> - Small scripts and calling APIs. Classes are the thing I'm working on now.</li>
+<li><b>Git</b> - Commit, branch, merge. I still look up how to undo things.</li>
+<li><b>JavaScript</b> - Just started. Mostly poking at the DOM.</li>
+</ul>
 
-    <section id="work">
-      <h2>Things I've made</h2>
-      <ul class="work">
-        <li>
-          <span class="yr">2026</span>
-          <div>
-            <h3>Personal blog</h3>
-            <p>Hand-written HTML and CSS, no framework. Where I write down what I'm learning. Fixed a lot of margin problems along the way.</p>
-            <div class="stack">HTML, CSS</div>
-          </div>
-        </li>
-        <li>
-          <span class="yr">2026</span>
-          <div>
-            <h3>Weather script</h3>
-            <p>Pulls weather data from an API and prints it neatly in the terminal. My first real Python project. Not pretty, but it works.</p>
-            <div class="stack">Python, APIs</div>
-          </div>
-        </li>
-        <li>
-          <span class="yr">2026</span>
-          <div>
-            <h3>CSS experiments</h3>
-            <p>Gradients, clip-paths and animations, with no image files, to see how far plain CSS goes.</p>
-            <div class="stack">CSS</div>
-          </div>
-        </li>
-      </ul>
-      <!-- Add a link to each project here, e.g. <a href="https://github.com/you/repo">code</a> -->
-    </section>
+<h2 id="work">Things I've made</h2>
+<ul>
+<li><b>Personal blog</b> (2026, HTML, CSS) - Hand-written HTML and CSS, no framework. Where I write down what I'm learning. Fixed a lot of margin problems along the way.</li>
+<li><b>Weather script</b> (2026, Python, APIs) - Pulls weather data from an API and prints it neatly in the terminal. My first real Python project. Not pretty, but it works.</li>
+<li><b>CSS experiments</b> (2026, CSS) - Gradients, clip-paths and animations, with no image files, to see how far plain CSS goes.</li>
+</ul>
 
-    <section id="contact">
-      <h2>Contact</h2>
-      <p>If you have feedback on my code, an idea to build together, or just want to talk about this stuff, email me: <a href="mailto:aahan.patel@gmail.com">aahan.patel@gmail.com</a></p>
-      <!-- Add your real GitHub / LinkedIn links here when you have them -->
-    </section>
-  </main>
+<h2 id="contact">Contact</h2>
+<p>If you have feedback on my code, an idea to build together, or just want to talk about this stuff, email me: <a href="mailto:aahan.patel@gmail.com">aahan.patel@gmail.com</a></p>
 
-  <footer>
-    <span>Aahan Patel, 2026</span>
-    <span>Written by hand in HTML and CSS</span>
-  </footer>
+<hr>
+<p>Aahan Patel, 2026</p>
 
-</div>
 </body>
 </html>
